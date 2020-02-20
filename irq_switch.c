@@ -11,7 +11,8 @@ MODULE_VERSION("0.01");
 
 static int MAX_PRIME = 1000000;
 #define CPUID 4
-#define WITHOUT 1
+#define WITHOUT 0
+#define BIND 1
 
 uint64_t rdtscp(void)
 {
@@ -23,16 +24,14 @@ uint64_t rdtscp(void)
 }
 static struct task_struct *tss = NULL;
 
-const static int id = 1;
-
 int test_prime(void *arg)
 {
   unsigned long long c;
   unsigned long long l, t;
   unsigned long long n = 0;
-
   uint64_t begin, end;
   int i;
+
   if (WITHOUT)
     local_irq_disable();
 
@@ -51,11 +50,7 @@ int test_prime(void *arg)
     }
 
     end = rdtscp();
-
-    if (WITHOUT)
-      printk("kernel WITHOUT irq %llu MAX_PRIME=%d", end - begin, MAX_PRIME);
-    else
-      printk("kernel WITH irq %llu MAX_PRIME=%d", end - begin, MAX_PRIME);
+    printk("kernel WITHOUT=%d BIND=%d MAX_PRIME=%d %llu", WITHOUT, BIND, MAX_PRIME, end - begin);
   }
 
   if (WITHOUT)
@@ -64,42 +59,25 @@ int test_prime(void *arg)
   return 0;
 }
 
-// static void disable(void *info)
-// {
-//   int cpu = get_cpu();
-//   // if (cpu == id) {
-//   printk("disable irq on target cpu: %d\n", cpu);
-//   local_irq_disable();
-//   // }
-//   put_cpu();
-// }
-
-// static void enable(void *info)
-// {
-//   int cpu = get_cpu();
-//   // if (cpu == id) {
-//   printk("enable irq on target cpu: %d\n", cpu);
-//   local_irq_enable();
-//   // }
-//   put_cpu();
-// }
-
 static int __init irq_switch_init(void)
 {
-
-  tss = kthread_create(test_prime, NULL, "Test_prime_task");
-  if (!IS_ERR(tss))
+  if (BIND)
   {
-    // kthread_bind(tss, CPUID);
-    wake_up_process(tss);
+    tss = kthread_create(test_prime, NULL, "Test_prime_task");
+    if (!IS_ERR(tss))
+    {
+      kthread_bind(tss, CPUID);
+      wake_up_process(tss);
+    }
   }
+  else
+    test_prime(0);
 
   return 0;
 }
 
 static void __exit irq_switch_exit(void)
 {
-  // on_each_cpu(enable, NULL, 1);
 }
 
 module_init(irq_switch_init);
