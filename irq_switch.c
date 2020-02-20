@@ -9,19 +9,19 @@ MODULE_AUTHOR("Robert W.Oliver II");
 MODULE_DESCRIPTION("Disable IRQ");
 MODULE_VERSION("0.01");
 
-#define MAX_PRIME 100000
+static int MAX_PRIME=100000;
 #define CPUID 4
-#define WITHOUT 1
+#define WITHOUT 0
 
 
-// uint64_t rdtsc(){
-//   uint32_t lo,hi;
-//   __asm__ __volatile__
-//   (
-//     "rdtsc":"=a"(lo),"=d"(hi)
-//   );
-//   return (uint64_t)hi << 32 | lo;
-// }
+uint64_t rdtscp(void){
+  uint32_t lo,hi;
+  __asm__ __volatile__
+  (
+    "rdtscp":"=a"(lo),"=d"(hi)
+  );
+  return (uint64_t)hi << 32 | lo;
+}
 static struct task_struct *tss = NULL;
 
 const static int id = 1;
@@ -71,10 +71,12 @@ static int __init irq_switch_init(void)
   if (WITHOUT)
     local_irq_disable();
 
+  // printk("-----start\n");
+
   for (i = 0; i < 10; ++i)
   {
     n = 0;
-    begin = rdtsc();
+    begin = rdtscp();
     for (c = 3; c < MAX_PRIME; c++)
     {
       t = int_sqrt(c);
@@ -85,13 +87,15 @@ static int __init irq_switch_init(void)
         n++;
     }
 
-    end = rdtsc();
+    end = rdtscp();
 
     if (WITHOUT)
       printk("kernel WITHOUT irq %llu MAX_PRIME=%d", end - begin, MAX_PRIME);
     else
       printk("kernel WITH irq %llu MAX_PRIME=%d", end - begin, MAX_PRIME);
   }
+  // printk("-----stop\n");
+
   if (WITHOUT)
     local_irq_enable();
 

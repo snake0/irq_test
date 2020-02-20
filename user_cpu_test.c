@@ -1,13 +1,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <math.h>
-uint64_t rdtsc()
-{
-    uint32_t lo, hi;
-    __asm__ __volatile__(
-        "rdtsc"
-        : "=a"(lo), "=d"(hi));
-    return (uint64_t)hi << 32 | lo;
+uint64_t rdtscp(void){
+  uint32_t lo,hi;
+  __asm__ __volatile__
+  (
+    "rdtscp":"=a"(lo),"=d"(hi)
+  );
+  return (uint64_t)hi << 32 | lo;
 }
 
 #define MAX_PRIME 1000000
@@ -31,7 +31,7 @@ void test_cpu()
     }*/
 
         n = 0;
-        begin = rdtsc();
+        begin = rdtscp();
         for (c = 3; c < MAX_PRIME; c++)
         {
             t = sqrt(c);
@@ -42,9 +42,9 @@ void test_cpu()
                 n++;
         }
 
-        end = rdtsc();
+        end = rdtscp();
 
-        printf("%lu\n", end - begin);
+        //printf("%lu\n", end - begin);
     }
     // local_irq_enable();
 }
