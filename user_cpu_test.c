@@ -1,0 +1,55 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <math.h>
+uint64_t rdtsc()
+{
+    uint32_t lo, hi;
+    __asm__ __volatile__(
+        "rdtsc"
+        : "=a"(lo), "=d"(hi));
+    return (uint64_t)hi << 32 | lo;
+}
+
+#define MAX_PRIME 1000000
+
+void test_cpu()
+{
+    unsigned long long c;
+    unsigned long long l, t;
+    unsigned long long n = 0;
+
+    uint64_t begin, end;
+    int i;
+    // local_irq_disable();
+    // preempt_disable();
+    /* So far we're using very simple test prime number tests in 64bit */
+    for (i = 0; i < 10; ++i)
+    {
+        /*if (kthread_should_stop())
+    {
+      break;
+    }*/
+
+        n = 0;
+        begin = rdtsc();
+        for (c = 3; c < MAX_PRIME; c++)
+        {
+            t = sqrt(c);
+            for (l = 2; l <= t; l++)
+                if (c % l == 0)
+                    break;
+            if (l > t)
+                n++;
+        }
+
+        end = rdtsc();
+
+        printf("%lu\n", end - begin);
+    }
+    // local_irq_enable();
+}
+
+int main(){
+  test_cpu();
+  return 0;
+}
