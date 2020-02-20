@@ -10,7 +10,7 @@ MODULE_DESCRIPTION("Disable IRQ");
 MODULE_VERSION("0.01");
 
 static int MAX_PRIME = 1000000;
-#define CPUID 4
+#define CPUID 3
 #define WITHOUT 0
 #define BIND 1
 
@@ -32,9 +32,6 @@ int test_prime(void *arg)
   uint64_t begin, end;
   int i;
 
-  if (WITHOUT)
-    local_irq_disable();
-
   for (i = 0; i < 10; ++i)
   {
     n = 0;
@@ -53,9 +50,6 @@ int test_prime(void *arg)
     printk("kernel WITHOUT=%d BIND=%d MAX_PRIME=%d %llu", WITHOUT, BIND, MAX_PRIME, end - begin);
   }
 
-  if (WITHOUT)
-    local_irq_enable();
-
   return 0;
 }
 
@@ -71,7 +65,37 @@ static int __init irq_switch_init(void)
     }
   }
   else
-    test_prime(0);
+  {
+    unsigned long long c;
+    unsigned long long l, t;
+    unsigned long long n = 0;
+    uint64_t begin, end;
+    int i;
+
+    if (WITHOUT)
+      local_irq_disable();
+
+    for (i = 0; i < 10; ++i)
+    {
+      n = 0;
+      begin = rdtscp();
+      for (c = 3; c < MAX_PRIME; c++)
+      {
+        t = int_sqrt(c);
+        for (l = 2; l <= t; l++)
+          if (c % l == 0)
+            break;
+        if (l > t)
+          n++;
+      }
+
+      end = rdtscp();
+      printk("WITHOUT=%d BIND=%d MAX_PRIME=%d %llu", WITHOUT, BIND, MAX_PRIME, end - begin);
+    }
+
+    if (WITHOUT)
+      local_irq_enable();
+  }
 
   return 0;
 }
