@@ -11,7 +11,7 @@ MODULE_VERSION("0.01");
 
 static int MAX_PRIME = 1000000;
 #define CPUID 3
-#define WITHOUT 0
+#define WITHOUT 1
 #define BIND 1
 
 uint64_t rdtscp(void)
@@ -32,6 +32,9 @@ int test_prime(void *arg)
   uint64_t begin, end;
   int i;
 
+  if (WITHOUT)
+      local_irq_disable();
+
   for (i = 0; i < 10; ++i)
   {
     n = 0;
@@ -49,6 +52,9 @@ int test_prime(void *arg)
     end = rdtscp();
     printk("kernel WITHOUT=%d BIND=%d MAX_PRIME=%d %llu", WITHOUT, BIND, MAX_PRIME, end - begin);
   }
+
+  if (WITHOUT)
+      local_irq_enable();
 
   return 0;
 }
