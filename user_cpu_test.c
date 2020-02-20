@@ -1,12 +1,12 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <math.h>
-uint64_t rdtscp(void){
-  uint32_t lo,hi;
-  __asm__ __volatile__
-  (
-    "rdtscp":"=a"(lo),"=d"(hi)
-  );
+uint64_t rdtscp(void)
+{
+  uint32_t lo, hi;
+  __asm__ __volatile__(
+      "rdtscp"
+      : "=a"(lo), "=d"(hi));
   return (uint64_t)hi << 32 | lo;
 }
 
@@ -14,42 +14,35 @@ uint64_t rdtscp(void){
 
 void test_cpu()
 {
-    unsigned long long c;
-    unsigned long long l, t;
-    unsigned long long n = 0;
+  unsigned long long c;
+  unsigned long long l, t;
+  unsigned long long n = 0;
 
-    uint64_t begin, end;
-    int i;
-    // local_irq_disable();
-    // preempt_disable();
-    /* So far we're using very simple test prime number tests in 64bit */
-    for (i = 0; i < 10; ++i)
+  uint64_t begin, end;
+  int i;
+
+  for (i = 0; i < 10; ++i)
+  {
+    n = 0;
+    begin = rdtscp();
+    for (c = 3; c < MAX_PRIME; c++)
     {
-        /*if (kthread_should_stop())
-    {
-      break;
-    }*/
-
-        n = 0;
-        begin = rdtscp();
-        for (c = 3; c < MAX_PRIME; c++)
-        {
-            t = sqrt(c);
-            for (l = 2; l <= t; l++)
-                if (c % l == 0)
-                    break;
-            if (l > t)
-                n++;
-        }
-
-        end = rdtscp();
-
-        //printf("%lu\n", end - begin);
+      t = sqrt(c);
+      for (l = 2; l <= t; l++)
+        if (c % l == 0)
+          break;
+      if (l > t)
+        n++;
     }
-    // local_irq_enable();
+
+    end = rdtscp();
+
+    printf("%lu\n", end - begin);
+  }
 }
 
-int main(){
+int main()
+{
   test_cpu();
   return 0;
 }

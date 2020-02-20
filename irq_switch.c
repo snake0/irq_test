@@ -9,9 +9,11 @@ MODULE_AUTHOR("Robert W.Oliver II");
 MODULE_DESCRIPTION("Disable IRQ");
 MODULE_VERSION("0.01");
 
+static const char *tf[2] = {"false", "true"};
+
 static int MAX_PRIME = 1000000;
 #define CPUID 3
-#define WITHOUT 1
+#define WITHOUT 0
 #define BIND 1
 
 uint64_t rdtscp(void)
@@ -33,7 +35,7 @@ int test_prime(void *arg)
   int i;
 
   if (WITHOUT)
-      local_irq_disable();
+    local_irq_disable();
 
   for (i = 0; i < 10; ++i)
   {
@@ -50,11 +52,11 @@ int test_prime(void *arg)
     }
 
     end = rdtscp();
-    printk("kernel WITHOUT=%d BIND=%d MAX_PRIME=%d %llu", WITHOUT, BIND, MAX_PRIME, end - begin);
+    printk("WITHOUT_IRQ=%s BIND_CPU=%s MAX_PRIME=%d %llu", tf[WITHOUT], tf[BIND], MAX_PRIME, end - begin);
   }
 
   if (WITHOUT)
-      local_irq_enable();
+    local_irq_enable();
 
   return 0;
 }
@@ -96,7 +98,7 @@ static int __init irq_switch_init(void)
       }
 
       end = rdtscp();
-      printk("WITHOUT=%d BIND=%d MAX_PRIME=%d %llu", WITHOUT, BIND, MAX_PRIME, end - begin);
+      printk("WITHOUT_IRQ=%s BIND_CPU=%s MAX_PRIME=%d %llu", tf[WITHOUT], tf[BIND], MAX_PRIME, end - begin);
     }
 
     if (WITHOUT)
