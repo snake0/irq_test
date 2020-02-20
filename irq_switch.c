@@ -13,8 +13,8 @@ static const char *tf[2] = {"false", "true"};
 
 static int MAX_PRIME = 1000000;
 #define CPUID 3
-#define WITHOUT 0
-#define BIND 0
+#define WITHOUT 1
+#define BIND 1
 
 uint64_t rdtscp(void)
 {
