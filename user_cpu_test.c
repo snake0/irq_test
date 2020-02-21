@@ -1,6 +1,12 @@
-#include <stdint.h>
 #include <stdio.h>
-#include <math.h>
+#include <stdlib.h>
+#define __USE_GNU
+#include <sched.h>
+#include <errno.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <pthread.h>
+
 uint64_t rdtscp(void)
 {
   uint32_t lo, hi;
@@ -34,7 +40,12 @@ unsigned long cal_sqrt(unsigned long x)
 	return res;
 }
 
-void test_cpu()
+#define BIND_CPU 1
+#define CPU_ID 3
+
+cpu_set_t mask;
+
+void test_prime()
 {
   unsigned long long c;
   unsigned long long l, t;
@@ -42,6 +53,13 @@ void test_cpu()
 
   uint64_t begin, end;
   int i;
+  if (BIND_CPU)
+  {
+    if (pthread_setaffinity_np(pthread_self(), sizeof(mask), &mask) < 0)
+    {
+      printf("Set thread affinity error!\n");
+    }
+  }
 
   for (i = 0; i < 10; ++i)
   {
@@ -63,8 +81,25 @@ void test_cpu()
   }
 }
 
-int main()
+int main(int argc, char **argv)
 {
-  test_cpu();
+  int ret, i;
+  pthread_t pid;
+  
+  CPU_ZERO(&mask);
+
+  // Set CPU mask
+  if (BIND_CPU)
+  {
+    CPU_SET(CPU_ID, &mask);
+  }
+
+  // Create a thread 
+  if ((ret = pthread_create(&pid, NULL, (void *)test_prime, NULL)) != 0)
+  {
+    printf("Create thread error!\n");
+  }
+
+  pthread_join(pid, NULL);
   return 0;
 }
