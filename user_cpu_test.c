@@ -12,6 +12,28 @@ uint64_t rdtscp(void)
 
 #define MAX_PRIME 1000000
 
+#define BITS_PER_LONG 64
+
+unsigned long cal_sqrt(unsigned long x)
+{
+	unsigned long op, res, one;
+	op = x;
+	res = 0;
+	one = 1UL << (BITS_PER_LONG - 2);
+	while (one > op)
+		one >>= 2;
+
+	while (one != 0) {
+		if (op >= res + one) {
+			op = op - (res + one);
+			res = res +  2 * one;
+		}
+		res /= 2;
+		one /= 4;
+	}
+	return res;
+}
+
 void test_cpu()
 {
   unsigned long long c;
@@ -27,7 +49,7 @@ void test_cpu()
     begin = rdtscp();
     for (c = 3; c < MAX_PRIME; c++)
     {
-      t = sqrt(c);
+      t = cal_sqrt(c);
       for (l = 2; l <= t; l++)
         if (c % l == 0)
           break;

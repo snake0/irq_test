@@ -8,12 +8,33 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Robert W.Oliver II");
 MODULE_DESCRIPTION("Disable IRQ");
 MODULE_VERSION("0.01");
+#define BITS_PER_LONG 64
 
 static const char *tf[2] = {"false", "true"};
 
+unsigned long cal_sqrt(unsigned long x)
+{
+	unsigned long op, res, one;
+	op = x;
+	res = 0;
+	one = 1UL << (BITS_PER_LONG - 2);
+	while (one > op)
+		one >>= 2;
+
+	while (one != 0) {
+		if (op >= res + one) {
+			op = op - (res + one);
+			res = res +  2 * one;
+		}
+		res /= 2;
+		one /= 4;
+	}
+	return res;
+}
+
 static int MAX_PRIME = 1000000;
 #define CPUID 3
-#define WITHOUT 1
+#define WITHOUT 0
 #define BIND 1
 
 uint64_t rdtscp(void)
@@ -43,7 +64,7 @@ int test_prime(void *arg)
     begin = rdtscp();
     for (c = 3; c < MAX_PRIME; c++)
     {
-      t = int_sqrt(c);
+      t = cal_sqrt(c);
       for (l = 2; l <= t; l++)
         if (c % l == 0)
           break;
