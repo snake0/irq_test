@@ -1,8 +1,15 @@
 cd $1
+
 gcc ./user_$1_test.c -O3 -lm
-echo "waiting..."
-sleep 10
-echo "started!"
-./a.out
-cd ..
+
+if [ $? -ne 0 ]; then
+  echo "\ngcc failed. exit."
+  exit
+else
+  echo "waiting..."
+  sleep 10
+  echo "started!"
+  ./a.out
+  cd ..
+fi
 

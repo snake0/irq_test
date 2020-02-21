@@ -5,32 +5,32 @@ const char *tf[2] = {"false", "true"};
 
 #define BITS_PER_LONG 64
 
-#define DISABLE_IRQ 1
+#define DISABLE_IRQ 0
 #define BIND_CPU 0
 
 #define CPUID 3
 
-static inline uint64_t rdtscp(void)
+static inline unsigned long long rdtscp(void)
 {
-  uint32_t lo, hi;
+  unsigned long long lo, hi;
   __asm__ __volatile__(
       "rdtscp"
       : "=a"(lo), "=d"(hi));
-  return (uint64_t)hi << 32 | lo;
+  return (unsigned long long)hi << 32 | lo;
 }
 
 typedef struct _rand {
-  uint64_t a, b;
+  unsigned long long a, b;
 } rand_t;
 
-static inline void rand_init(rand_t *rand, long seed) {
-  rand->a = rdtscp() - seed;
-  rand->b = seed;
+static inline void rand_init(rand_t *rand) {
+  rand->a = rdtscp() - 1283;
+  rand->b = 1276;
 }
 
-static uint64_t inline rand_gen(rand_t *rand) {
-  uint64_t t = rand->a;
-  uint64_t const s = rand->b;
+static unsigned long long inline rand_gen(rand_t *rand) {
+  unsigned long long t = rand->a;
+  unsigned long long const s = rand->b;
   rand->a = s;
   t ^= t << 23;        
   t ^= t >> 17;        
