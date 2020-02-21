@@ -8,6 +8,7 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Robert W.Oliver II");
 MODULE_DESCRIPTION("Disable IRQ");
 MODULE_VERSION("0.01");
+
 #define BITS_PER_LONG 64
 
 static const char *tf[2] = {"false", "true"};
@@ -33,9 +34,10 @@ unsigned long cal_sqrt(unsigned long x)
 }
 
 static int MAX_PRIME = 1000000;
+
 #define CPUID 3
-#define WITHOUT 0
-#define BIND 1
+#define DISABLE_IRQ 1
+#define BIND_CPU 1
 
 uint64_t rdtscp(void)
 {
@@ -55,7 +57,7 @@ int test_prime(void *arg)
   uint64_t begin, end;
   int i;
 
-  if (WITHOUT)
+  if (DISABLE_IRQ)
     local_irq_disable();
 
   for (i = 0; i < 10; ++i)
@@ -73,10 +75,10 @@ int test_prime(void *arg)
     }
 
     end = rdtscp();
-    printk("WITHOUT_IRQ=%s BIND_CPU=%s MAX_PRIME=%d %llu", tf[WITHOUT], tf[BIND], MAX_PRIME, end - begin);
+    printk("DISABLE_IRQ=%s BIND_CPU=%s MAX_PRIME=%d %llu", tf[DISABLE_IRQ], tf[BIND_CPU], MAX_PRIME, end - begin);
   }
 
-  if (WITHOUT)
+  if (DISABLE_IRQ)
     local_irq_enable();
 
   return 0;
@@ -84,7 +86,7 @@ int test_prime(void *arg)
 
 static int __init irq_switch_init(void)
 {
-  if (BIND)
+  if (BIND_CPU)
   {
     tss = kthread_create(test_prime, NULL, "Test_prime_task");
     if (!IS_ERR(tss))
@@ -101,7 +103,7 @@ static int __init irq_switch_init(void)
     uint64_t begin, end;
     int i;
 
-    if (WITHOUT)
+    if (DISABLE_IRQ)
       local_irq_disable();
 
     for (i = 0; i < 10; ++i)
@@ -110,7 +112,7 @@ static int __init irq_switch_init(void)
       begin = rdtscp();
       for (c = 3; c < MAX_PRIME; c++)
       {
-        t = int_sqrt(c);
+        t = cal_sqrt(c);
         for (l = 2; l <= t; l++)
           if (c % l == 0)
             break;
@@ -119,10 +121,10 @@ static int __init irq_switch_init(void)
       }
 
       end = rdtscp();
-      printk("WITHOUT_IRQ=%s BIND_CPU=%s MAX_PRIME=%d %llu", tf[WITHOUT], tf[BIND], MAX_PRIME, end - begin);
+      printk("DISABLE_IRQ=%s BIND_CPU=%s MAX_PRIME=%d %llu", tf[DISABLE_IRQ], tf[BIND_CPU], MAX_PRIME, end - begin);
     }
 
-    if (WITHOUT)
+    if (DISABLE_IRQ)
       local_irq_enable();
   }
 
