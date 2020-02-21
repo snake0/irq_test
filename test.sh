@@ -1,4 +1,4 @@
-sudo rmmod irq_switch.ko
+sudo rmmod kernel_cpu_test.ko
 make
 sleep 10
-sudo insmod irq_switch.ko
+sudo insmod kernel_cpu_test.ko

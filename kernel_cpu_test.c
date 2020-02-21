@@ -37,7 +37,7 @@ static int MAX_PRIME = 1000000;
 
 #define CPUID 3
 #define DISABLE_IRQ 1
-#define BIND_CPU 1
+#define BIND_CPU 0
 
 uint64_t rdtscp(void)
 {
@@ -125,7 +125,7 @@ static int __init irq_switch_init(void)
     }
 
     if (DISABLE_IRQ)
-      local_irq_enable();
+	    local_irq_enable();
   }
 
   return 0;
