@@ -3,15 +3,12 @@
 #include <linux/module.h>
 #include <linux/kthread.h>
 #include <linux/sched.h>
+#include "../utils.h"
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Robert W.Oliver II");
 MODULE_DESCRIPTION("Disable IRQ");
 MODULE_VERSION("0.01");
-
-#define BITS_PER_LONG 64
-
-static const char *tf[2] = {"false", "true"};
 
 unsigned long cal_sqrt(unsigned long x)
 {
@@ -34,19 +31,6 @@ unsigned long cal_sqrt(unsigned long x)
 }
 
 static int MAX_PRIME = 1000000;
-
-#define CPUID 3
-#define DISABLE_IRQ 1
-#define BIND_CPU 0
-
-uint64_t rdtscp(void)
-{
-  uint32_t lo, hi;
-  __asm__ __volatile__(
-      "rdtscp"
-      : "=a"(lo), "=d"(hi));
-  return (uint64_t)hi << 32 | lo;
-}
 static struct task_struct *tss = NULL;
 
 int test_prime(void *arg)

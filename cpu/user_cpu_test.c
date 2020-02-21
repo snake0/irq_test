@@ -1,18 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <math.h>
-uint64_t rdtscp(void)
-{
-  uint32_t lo, hi;
-  __asm__ __volatile__(
-      "rdtscp"
-      : "=a"(lo), "=d"(hi));
-  return (uint64_t)hi << 32 | lo;
-}
+#include "../utils.h"
 
 #define MAX_PRIME 1000000
-
-#define BITS_PER_LONG 64
 
 unsigned long cal_sqrt(unsigned long x)
 {
