@@ -15,9 +15,25 @@ static rand_t rand_;
 
 static size_t *buffer;
 
-static inline void SIZE_T_WRITE(size_t *pos) { *pos = WRITE_DATA; }
+// static inline void SIZE_T_WRITE(size_t *pos) { *pos = WRITE_DATA; }
 
-static inline size_t SIZE_T_READ(size_t *pos) { return *pos; }
+// static inline size_t SIZE_T_READ(size_t *pos) { return *pos; }
+static inline void SIZE_T_WRITE(size_t *pos,size_t data) { 
+  asm volatile("movq %1, (%0);" 
+          : 
+          : "r" (pos), 
+            "r" (data) 
+          : "memory");
+}
+
+static inline size_t SIZE_T_READ(size_t *pos) {
+  size_t res;
+  asm volatile("movq (%1), %0" 
+          : "=r" (res)
+          : "r" (pos)
+          : "memory");
+  return res;
+}
 
 int test_memory(void) {
   int i, j;
