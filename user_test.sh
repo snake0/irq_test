@@ -7,7 +7,7 @@ if [ $? -ne 0 ]; then
   exit
 else
   echo "waiting..."
-  sleep 10
+  # sleep 3
   echo "started!"
   ./a.out
   cd ..
