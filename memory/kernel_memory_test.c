@@ -11,19 +11,18 @@ MODULE_DESCRIPTION("Disable IRQ");
 MODULE_VERSION("0.01");
 
 static struct task_struct *tss = NULL;
-static rand_t rand;
+static rand_t rand_;
 
-#define TOTAL_SIZE (1 << 26)
+#define TOTAL_SIZE (1 << 20)
 // #define BLOCK_SIZE (1 << 10)
 #define BLOCK_NUM (TOTAL_SIZE / BLOCK_SIZE)
-#define OPER_COUNT ((BLOCK_NUM / sizeof(size_t)) << 8)
+#define OPER_COUNT ((BLOCK_NUM / sizeof(size_t)) << 20)
 
 #define WRITE_DATA 3
 #define IF_WRITE 1
 
 static size_t *buffer;
 
-<<<<<<< HEAD
 static inline void SIZE_T_STORE(size_t *pos, size_t data)
 {
   asm volatile("movq %1, (%0);"
@@ -40,25 +39,6 @@ static inline size_t SIZE_T_LOAD(size_t *pos)
                : "=r"(res)
                : "r"(pos)
                : "memory");
-=======
-// static inline void SIZE_T_WRITE(size_t *pos) { *pos = WRITE_DATA; }
-
-// static inline size_t SIZE_T_READ(size_t *pos) { return *pos; }
-static inline void SIZE_T_WRITE(size_t *pos,size_t data) { 
-  asm volatile("movq %1, (%0);" 
-          : 
-          : "r" (pos), 
-            "r" (data) 
-          : "memory");
-}
-
-static inline size_t SIZE_T_READ(size_t *pos) {
-  size_t res;
-  asm volatile("movq (%1), %0" 
-          : "=r" (res)
-          : "r" (pos)
-          : "memory");
->>>>>>> ba8d23265b6d839eaa6958f6e93f7fef483aefa7
   return res;
 }
 
@@ -72,7 +52,7 @@ int test_memory(void *arg)
 
   size_t *offset; // start position for every operation
 
-  rand_init(&rand);
+  rand_init(&rand_);
 
   buffer = (size_t *)vmalloc(TOTAL_SIZE);
   if (buffer == NULL)

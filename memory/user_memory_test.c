@@ -6,10 +6,10 @@
 
 static rand_t rand_;
 
-#define TOTAL_SIZE (1 << 26)
+#define TOTAL_SIZE (1 << 20)
 #define BLOCK_SIZE (1 << 10)
 #define BLOCK_NUM (TOTAL_SIZE / BLOCK_SIZE)
-#define OPER_COUNT ((BLOCK_NUM / sizeof(size_t)) << 8)
+#define OPER_COUNT ((BLOCK_NUM / sizeof(size_t)) << 20)
 
 #define WRITE_DATA 3
 

@@ -5,8 +5,8 @@ const char *tf[2] = {"false", "true"};
 
 #define BITS_PER_LONG 64
 
-#define DISABLE_IRQ 1
-#define BIND_CPU 1
+#define DISABLE_IRQ 0
+#define BIND_CPU 0
 
 #define CPUID 3
 
