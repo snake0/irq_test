@@ -53,7 +53,6 @@
 | VM User Space | IRQ Enable CPU 3 | IRQ Enable CPU 0 | IRQ Enable All CPU |
 | :-: | :-: | :-: | :-: | 
 | Performance Change | 0.62% ↓ | 0.35% ↓ | 0.86% ↓ | 
-从上表可以看出，相比较于读操作，写操作往往耗时更久，但是程序性能下降不多。
 ### 2. OS Overhead
 分别计算虚拟环境与物理环境下，用户态相比较于内核态读写操作性能变化
 | PM | IRQ Enable Bind CPU | IRQ Enable All CPU |  
@@ -83,10 +82,11 @@
 | Read Performance Change | 0.04% ↑  | 0.04% ↓ | 
 | Write Performance Change | 0.04% ↑ | 0.03% ↓ |
 ## 五、结论
-1. 写操作相对于读操作，耗时更久，但就整个程序运行时间来看，影响不大。
-2. 当程序运行在用户态时，相比较于程序运行在内核态，性能十分接近，波动幅度小于1%。因此OS介入对内存操作影响不大。
+1. 内存操作类型对程序性能影响不大，相比较于读操作而言，写操作往往耗时更久，但就整个程序运行时间来看，性能波动在2%以内，大部分在0.5%以内。
+2. 当程序运行在用户态时，相比较于程序运行在内核态，性能十分接近，波动幅度小于1%。就目前数据来看，OS介入对内存操作影响不大。
 3. 当OS于Hypervisor双重介入时，程序性能有所下降，读写操作均是如此，但是下降幅度并不明显，约在1%~2%左右。
 4. 是否开启中断对程序性能影响不大，关闭中断后，程序性能波动在0.5%以内。
+5. 同CPU测试程序相比，内存测试程序性能较为稳定，受中断，CPU亲和性等配置影响较小，受OS与Hypervisor影响也不大。
 ## 六、代码
 [内核态测试代码](https://github.com/snake0/irq_test/blob/mem_test_dev/memory/kernel_memory_test.c)
 [用户态测试代码](https://github.com/snake0/irq_test/blob/mem_test_dev/memory/user_memory_test.c)
