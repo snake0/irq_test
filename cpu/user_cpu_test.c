@@ -6,22 +6,24 @@
 
 unsigned long cal_sqrt(unsigned long x)
 {
-	unsigned long op, res, one;
-	op = x;
-	res = 0;
-	one = 1UL << (BITS_PER_LONG - 2);
-	while (one > op)
-		one >>= 2;
+  unsigned long op, res, one;
+  op = x;
+  res = 0;
+  one = 1UL << (BITS_PER_LONG - 2);
+  while (one > op)
+    one >>= 2;
 
-	while (one != 0) {
-		if (op >= res + one) {
-			op = op - (res + one);
-			res = res +  2 * one;
-		}
-		res /= 2;
-		one /= 4;
-	}
-	return res;
+  while (one != 0)
+  {
+    if (op >= res + one)
+    {
+      op = op - (res + one);
+      res = res + 2 * one;
+    }
+    res /= 2;
+    one /= 4;
+  }
+  return res;
 }
 
 #define BIND_CPU 1
@@ -69,7 +71,7 @@ int main(int argc, char **argv)
 {
   int ret, i;
   pthread_t pid;
-  
+
   CPU_ZERO(&mask);
 
   // Set CPU mask
@@ -78,7 +80,7 @@ int main(int argc, char **argv)
     CPU_SET(CPU_ID, &mask);
   }
 
-  // Create a thread 
+  // Create a thread
   if ((ret = pthread_create(&pid, NULL, (void *)test_prime, NULL)) != 0)
   {
     printf("Create thread error!\n");

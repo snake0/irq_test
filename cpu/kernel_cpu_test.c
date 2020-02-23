@@ -12,22 +12,24 @@ MODULE_VERSION("0.01");
 
 unsigned long cal_sqrt(unsigned long x)
 {
-	unsigned long op, res, one;
-	op = x;
-	res = 0;
-	one = 1UL << (BITS_PER_LONG - 2);
-	while (one > op)
-		one >>= 2;
+  unsigned long op, res, one;
+  op = x;
+  res = 0;
+  one = 1UL << (BITS_PER_LONG - 2);
+  while (one > op)
+    one >>= 2;
 
-	while (one != 0) {
-		if (op >= res + one) {
-			op = op - (res + one);
-			res = res +  2 * one;
-		}
-		res /= 2;
-		one /= 4;
-	}
-	return res;
+  while (one != 0)
+  {
+    if (op >= res + one)
+    {
+      op = op - (res + one);
+      res = res + 2 * one;
+    }
+    res /= 2;
+    one /= 4;
+  }
+  return res;
 }
 
 static int MAX_PRIME = 1000000;
@@ -39,11 +41,12 @@ int test_prime(void *arg)
   unsigned long long l, t;
   unsigned long long n = 0;
   uint64_t begin, end;
-  int i,j;
+  int i, j;
 
   if (DISABLE_IRQ)
     local_irq_disable();
-for (j=0;j<10300000;++j);
+  for (j = 0; j < 10300000; ++j)
+    ;
 
   for (i = 0; i < 10; ++i)
   {
@@ -62,7 +65,8 @@ for (j=0;j<10300000;++j);
     end = rdtscp();
     printk("DISABLE_IRQ=%s BIND_CPU=%s MAX_PRIME=%d %llu", tf[DISABLE_IRQ], tf[BIND_CPU], MAX_PRIME, end - begin);
   }
-for (j=0;j<10300000;++j);
+  for (j = 0; j < 10300000; ++j)
+    ;
 
   if (DISABLE_IRQ)
     local_irq_enable();
@@ -87,12 +91,13 @@ static int __init irq_switch_init(void)
     unsigned long long l, t;
     unsigned long long n = 0;
     uint64_t begin, end;
-    int i,j;
+    int i, j;
 
     if (DISABLE_IRQ)
       local_irq_disable();
 
-for (j=0;j<10300000;++j);
+    for (j = 0; j < 10300000; ++j)
+      ;
 
     for (i = 0; i < 10; ++i)
     {
@@ -111,10 +116,11 @@ for (j=0;j<10300000;++j);
       end = rdtscp();
       printk("DISABLE_IRQ=%s BIND_CPU=%s MAX_PRIME=%d %llu", tf[DISABLE_IRQ], tf[BIND_CPU], MAX_PRIME, end - begin);
     }
-for (j=0;j<10300000;++j);
+    for (j = 0; j < 10300000; ++j)
+      ;
 
     if (DISABLE_IRQ)
-	    local_irq_enable();
+      local_irq_enable();
   }
 
   return 0;
