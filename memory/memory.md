@@ -75,7 +75,7 @@
 | PM Kernel Space | Bind CPU | All CPU |  
 | :-: | :-: | :-: |
 | Read Performance Change | 0.45% ↓  | 0.41% ↑ | 
-| Write Performance Change | 0.11% ↑ ↓ | 0.34% ↑ |
+| Write Performance Change | 0.11% ↑ | 0.34% ↑ |
 
 | VM Kernel Space | Bind CPU | All CPU |  
 | :-: | :-: | :-: |
