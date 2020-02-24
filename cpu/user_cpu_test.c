@@ -1,5 +1,14 @@
+#include <stdint.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#define __USE_GNU
+#include <pthread.h>
+#include <sched.h>
 #include "../utils.h"
 
 #define MAX_PRIME 1000000
@@ -25,9 +34,6 @@ unsigned long cal_sqrt(unsigned long x)
   }
   return res;
 }
-
-#define BIND_CPU 1
-#define CPU_ID 3
 
 cpu_set_t mask;
 
@@ -77,7 +83,7 @@ int main(int argc, char **argv)
   // Set CPU mask
   if (BIND_CPU)
   {
-    CPU_SET(CPU_ID, &mask);
+    CPU_SET(CPUID, &mask);
   }
 
   // Create a thread
