@@ -59,6 +59,7 @@
 | NO BIND, WITH IRQ | BIND, WITH IRQ | NO BIND, WITHOUT IRQ |
 | :-: | :-: | :-: |
 | 14.18% ↓ | 8.67% ↓ | 1.03% ↓ |
+
 **3.2 Hypervisor + Guest OS**
 | IRQ Enable CPU 3 | IRQ Enable CPU 0 | NO BIND, WITH IRQ |
 | :-: | :-: | :-: |
