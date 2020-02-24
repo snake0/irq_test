@@ -17,63 +17,52 @@
 
 * 经过objdump反汇编，我们的用户态、内核态测试代码的**汇编码**基本相同，保证了公平性。
 ## 三、测试结果
-### **0. 取消disable irq & bind cpu测试的说明：**
+**取消disable irq & bind cpu测试的说明：**
 
-* 关中断并且绑核测得的数据不稳定，尚未查明原因。但关中断必然绑核，即scheduler不会打断线程进行CPU迁移，我们**取消**了这个配置的测试。
+* 关中断并且绑核测得的数据不稳定（kthread_bind函数与local_irq_disable函数同时使用时）。且通过htop查看程序运行情况时，发现程序并没有运行在kthread_bind指定的核上，去掉local_irq_disable，单独使用kthread_bind则无此现象。但禁用中断时，程序运行不受影响，即scheduler不会打断线程进行CPU迁移，我们取消了这个配置的测试。
 
 * 其他配置的测试数据较为**稳定**，波动在 **`0.2%` 到 `0.3%`** 之间(标准差/平均值，见详细测试数据)
 
 ### 1. 物理机内核态测试
 | NO BIND, WITH IRQ | BIND, WITH IRQ | NO BIND, WITHOUT IRQ |
 | :-: | :-: | :-: | 
-| <font color=red>1508746974</font> | <font color=#FFA500>1434743820</font> | <font color=green>1345530254</font> |
-
+| $\color{#FF0000}{1508746974}$ | $\color{#FFA500}{1434743820}$ | $\color{#00FF00}{1345530254}$ |
 ### 2. 物理机用户态测试
 | IRQ Enable CPU 3 | IRQ Enable CPU 0 | NO BIND, WITH IRQ |
 | :-: | :-: | :-: |
-| <font color=red>1492132357</font> | <font color=#FFA500>1491205220</font> | <font color=green>1471545419</font> |
+| $\color{#FF0000}{1492132357}$ | $\color{#FFA500}{1491205220}$ | $\color{#00FF00}{1471545419}$ |
 ### 3. 虚拟机内核态测试
 | NO BIND, WITH IRQ | BIND, WITH IRQ | NO BIND, WITHOUT IRQ|
 | :-: | :-: | :-: |
-| <font color=red>1535383348</font> | <font color=#FFA500>1462007863</font> | <font color=green>1359371000</font> |
-
+| $\color{#FF0000}{1535383348}$ | $\color{#FFA500}{1462007863}$ | $\color{#00FF00}{1359371000}$ |
 ### 4. 虚拟机用户态测试
 | IRQ Enable CPU 3 | IRQ Enable CPU 0 | NO BIND, WITH IRQ |
 | :-: | :-: | :-: |
-| <font color=red>1500371071</font> | <font color=#FFA500>1511851971</font> | <font color=green>1502607961</font> |
+| $\color{#FF0000}{1500371071}$ | $\color{#FFA500}{1511851971}$ | $\color{#00FF00}{1502607961}$ |
 ## 四、测试结果分析
-### 1. **Kernel Overhead**
+### 1. Kernel Overhead
 以 `disable irq,no bind cpu` 为基准(**硬件最快速度，即线速(line speed)**)，分析CPU迁移(CPU migration)、中断(interrupt)等对内核线程的影响
 | NO BIND, WITH IRQ | BIND, WITH IRQ | NO BIND, WITHOUT IRQ |
 | :-: | :-: | :-: |
-|<font color=red>**12.13% ↓**</font>	| <font color=#FFA500>**6.63% ↓**</font>| <font color=green>**0%**</font> |
-
-
-### 2. **OS Overhead**
+| $\color{#FF0000}{12.13\% ↓}$ | $\color{#FFA500}{6.63\% ↓}$ | $\color{#00FF00}{0\%}$ |
+### 2. OS Overhead
 以`disable irq,no bind cpu` 为基准(**硬件最快速度，即线速(line speed)**)，分析系统调用(syscall)，中断(interrupt)等用户空间开销对用户空间APP的影响
-
 | IRQ Enable CPU 3 | IRQ Enable CPU 0 | NO BIND, WITH IRQ |
 | :-: | :-: | :-: |
-| <font color=red>**10.89548918% ↓**</font> | <font color=red>**10.82658422% ↓**</font> | <font color=#FFA500>**9.365464998% ↓**</font> |
+| $\color{#FF0000}{10.90\% ↓}$ | $\color{#FF0000}{10.83\% ↓}$ | $\color{#FFA500}{9.37\% ↓}$ |
 
-
-### 3. **OS & Hypervisor Overhead**
+### 3. OS & Hypervisor Overhead
 以`disable irq,no bind cpu` 为基准(**硬件最快速度，即线速(line speed)**)，分析虚拟机中 **`Hypervisor`** 和 **`客户机OS`** 开销
 
 **3.1 Hypervisor + Kernel**
 		
 | NO BIND, WITH IRQ | BIND, WITH IRQ | NO BIND, WITHOUT IRQ |
 | :-: | :-: | :-: |
-| <font color=red>**14.1797% ↓**</font> | <font color=#FFA500>**8.67252% ↓**</font> | <font color=#FFD700>**1.02813% ↓**</font> |
-
+| $\color{#FF0000}{14.18\% ↓}$ | $\color{#FFA500}{8.67\% ↓}$ | $\color{#FFD700}{1.03\% ↓}$ |
 **3.2 Hypervisor + Guest OS**
-
 | IRQ Enable CPU 3 | IRQ Enable CPU 0 | NO BIND, WITH IRQ |
 | :-: | :-: | :-: |
-| <font color=red>**12.4454% ↓**</font> | <font color=red>**12.4359% ↓**</font> | <font color=red>**11.2556% ↓**</font> |
-
-
-
+| $\color{#FF0000}{12.45\% ↓}$ | $\color{#FF0000}{12.44\% ↓}$ | $\color{#FF0000}{11.26\% ↓}$ |
 ## 五、结论
 根据第四节得出的性能变化百分比，我们有如下结论：
 
