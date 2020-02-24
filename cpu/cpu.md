@@ -25,12 +25,12 @@
 
 ### 1. 物理机内核态测试
 | NO BIND, WITH IRQ | BIND, WITH IRQ | NO BIND, WITHOUT IRQ |
-| :-: | :-: | :-: | :-: | :-: |
+| :-: | :-: | :-: | 
 | <font color=red>1508746974</font> | <font color=#FFA500>1434743820</font> | <font color=green>1345530254</font> |
 
 ### 2. 物理机用户态测试
 | IRQ Enable CPU 3 | IRQ Enable CPU 0 | NO BIND, WITH IRQ |
-| :-: | :-: | :-: | :-: |
+| :-: | :-: | :-: |
 | <font color=red>1492132357</font> | <font color=#FFA500>1491205220</font> | <font color=green>1471545419</font> |
 ### 3. 虚拟机内核态测试
 | NO BIND, WITH IRQ | BIND, WITH IRQ | NO BIND, WITHOUT IRQ|
@@ -39,13 +39,13 @@
 
 ### 4. 虚拟机用户态测试
 | IRQ Enable CPU 3 | IRQ Enable CPU 0 | NO BIND, WITH IRQ |
-| :-: | :-: | :-: | :-: |
+| :-: | :-: | :-: |
 | <font color=red>1500371071</font> | <font color=#FFA500>1511851971</font> | <font color=green>1502607961</font> |
 ## 四、测试结果分析
 ### 1. **Kernel Overhead**
 以 `disable irq,no bind cpu` 为基准(**硬件最快速度，即线速(line speed)**)，分析CPU迁移(CPU migration)、中断(interrupt)等对内核线程的影响
 | NO BIND, WITH IRQ | BIND, WITH IRQ | NO BIND, WITHOUT IRQ |
-| :-: | :-: | :-: | :-: |
+| :-: | :-: | :-: |
 |<font color=red>**12.13% ↓**</font>	| <font color=#FFA500>**6.63% ↓**</font>| <font color=green>**0%**</font> |
 
 
@@ -53,7 +53,7 @@
 以`disable irq,no bind cpu` 为基准(**硬件最快速度，即线速(line speed)**)，分析系统调用(syscall)，中断(interrupt)等用户空间开销对用户空间APP的影响
 
 | IRQ Enable CPU 3 | IRQ Enable CPU 0 | NO BIND, WITH IRQ |
-| :-: | :-: | :-: | :-: |
+| :-: | :-: | :-: |
 | <font color=red>**10.89548918% ↓**</font> | <font color=red>**10.82658422% ↓**</font> | <font color=#FFA500>**9.365464998% ↓**</font> |
 
 
@@ -63,13 +63,13 @@
 **3.1 Hypervisor + Kernel**
 		
 | NO BIND, WITH IRQ | BIND, WITH IRQ | NO BIND, WITHOUT IRQ |
-| :-: | :-: | :-: | :-: | :-: |
+| :-: | :-: | :-: |
 | <font color=red>**14.1797% ↓**</font> | <font color=#FFA500>**8.67252% ↓**</font> | <font color=#FFD700>**1.02813% ↓**</font> |
 
 **3.2 Hypervisor + Guest OS**
 
 | IRQ Enable CPU 3 | IRQ Enable CPU 0 | NO BIND, WITH IRQ |
-| :-: | :-: | :-: | :-: |
+| :-: | :-: | :-: |
 | <font color=red>**12.4454% ↓**</font> | <font color=red>**12.4359% ↓**</font> | <font color=red>**11.2556% ↓**</font> |
 
 
