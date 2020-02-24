@@ -16,7 +16,14 @@ MODULE_VERSION("0.01");
 
 static struct task_struct *tss = NULL;
 
-#define FILE_PATH "/home/snake0/p.c"
+#define FILE_SIZE (1 << 30)
+#define FILE_PATH "/home/snake0/test.txt"
+
+#define BUF_SIZE (1<<10)
+
+static int prepare(void) {
+
+}
 
 int test_io(void *arg) {
   struct file *fp;
@@ -27,10 +34,12 @@ int test_io(void *arg) {
   set_fs(KERNEL_DS);
 
   fp = filp_open(FILE_PATH, O_RDWR | O_CREAT, 0644);
-  if (IS_ERR(fp)) {
-    printk("open file error");
-    return -1;
+  if (IS_ERR(fp) & prepare()) {
+    printk("prepare error. exit.\n")
+    return 0;
   }
+
+
 
   pos = 0;
   vfs_read(fp, key, sizeof(key), &pos);
