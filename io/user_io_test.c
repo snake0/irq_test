@@ -40,7 +40,9 @@ void test_io()
       printf("File open error!\n");
     }
     begin = rdtscp();
-    ret = read(fd, read_buf, BLOCK_SIZE);
+    for(int j=0;j<100;++j)
+
+    ret = pread(fd, read_buf, BLOCK_SIZE,0);
     end = rdtscp();
     if (ret != BLOCK_SIZE)
       printf("Not expected size %d!\n", ret);
@@ -57,6 +59,7 @@ void test_io()
     }
 
     begin = rdtscp();
+    for(int j=0;j<100;++j)
     ret = write(fd, write_buf, BLOCK_SIZE);
     end = rdtscp();
 
