@@ -32,33 +32,39 @@ void test_io()
     }
   }
 
-  if((fd=open(filename, O_RDWR | O_SYNC)) == -1)
-  {
-    printf("File open error!\n");
-  }
-
   // test read
   for (int i = 0; i < 10; ++i)
   {
+    if((fd=open(filename, O_RDONLY | O_SYNC)) == -1)
+    {
+      printf("File open error!\n");
+    }
     begin = rdtscp();
     ret = read(fd, read_buf, BLOCK_SIZE);
     end = rdtscp();
     if (ret != BLOCK_SIZE)
       printf("Not expected size %d!\n", ret);
     printf("[READ BIND=%d] %lu\n", bind_cpu, end - begin);
+    close(fd);
   }
 
-  // test read
   for (int i = 0; i < 10; ++i)
   {
+    // Open file
+    if((fd=open("./temp.txt", O_WRONLY | O_TRUNC| O_SYNC, S_IRWXG)) == -1)
+    {
+      printf("File open error!\n");
+    }
+
     begin = rdtscp();
     ret = write(fd, write_buf, BLOCK_SIZE);
     end = rdtscp();
+
     if (ret != BLOCK_SIZE)
       printf("Not expected size %d!\n", ret);
-    printf("[READ BIND=%d] %lu\n", bind_cpu, end - begin);
+    printf("[WRITE BIND=%d] %lu\n", bind_cpu, end - begin);
+    close(fd);
   }
-
 }
 
 int main(int argc, char **argv)
