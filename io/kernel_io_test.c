@@ -8,7 +8,6 @@
 #include <linux/sched.h>
 #include <linux/string.h>
 #include <linux/uaccess.h>
-
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Robert W.Oliver II");
 MODULE_DESCRIPTION("Disable IRQ");
@@ -16,37 +15,63 @@ MODULE_VERSION("0.01");
 
 static struct task_struct *tss = NULL;
 
-#define FILE_SIZE (1 << 30)
-#define FILE_PATH "/home/snake0/test.txt"
-
-#define BUF_SIZE (1<<10)
-
-static int prepare(void) {
-
-}
+#define READ_FILE_PATH "/home/sin/test_read.txt"
+#define WRITE_FILE_PATH "/home/sin/test_write.txt"
+#define RW_SIZE (1 << 12)
 
 int test_io(void *arg) {
-  struct file *fp;
+  int ret, i, j;
+  char read_buf[RW_SIZE];
+  char write_buf[RW_SIZE];
+  uint64_t begin, end;
   mm_segment_t fs;
-  loff_t pos;
+  loff_t pos = 0;
+  struct file *fp = NULL;
+  memset(write_buf, 'c', RW_SIZE);
 
   fs = get_fs();
   set_fs(KERNEL_DS);
+  
+  // test read
+  for (i = 0; i < 10; ++i)
+  {
+    fp = filp_open(READ_FILE_PATH, O_RDONLY | O_SYNC, 0644);
+    if (IS_ERR(fp)) {
+      printk("Open file error!\n");
+      return -1;
+    }
 
-  fp = filp_open(FILE_PATH, O_RDWR | O_CREAT, 0644);
-  if (IS_ERR(fp) & prepare()) {
-    printk("prepare error. exit.\n")
-    return 0;
-  }
+    begin = rdtscp();
+    for (j = 0; j < 100; ++j)
+    {
+      ret = vfs_read(fp, read_buf, RW_SIZE, &pos);
+    }
+    end = rdtscp();
 
+    printk("[READ BIND_CPU=%d DISABLE_IRQ=%d] %llu\n", BIND_CPU, DISABLE_IRQ, end - begin);
+    filp_close(fp, NULL);
+  } 
+  
+  // test sequential write
+  for (i = 0; i < 10; ++i)
+  {
+    fp = filp_open(WRITE_FILE_PATH, O_WRONLY | O_TRUNC | O_SYNC, 0644);
+    if (IS_ERR(fp)) {
+      printk("Open file error!\n");
+      return -1;
+    }
 
+    begin = rdtscp();
+    for (j = 0; j < 100; ++j)
+    {
+      ret = vfs_write(fp, write_buf, RW_SIZE, &pos);
+      pos += RW_SIZE;
+    }
+    end = rdtscp();
 
-  pos = 0;
-  vfs_read(fp, key, sizeof(key), &pos);
-  memset(key + pos, 0, 200 - pos);
-  printk("file : %s|", key);
-  filp_close(fp, NULL);
-
+    printk("[WRITE BIND_CPU=%d DISABLE_IRQ=%d] %llu\n", BIND_CPU, DISABLE_IRQ, end - begin);
+    filp_close(fp, NULL);
+  } 
 
   set_fs(fs);
   return 0;

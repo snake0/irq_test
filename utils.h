@@ -10,6 +10,8 @@ const char *tf[2] = {"false", "true"};
 
 #define CPUID 3
 
+typedef long unsigned int size_t;
+
 static inline unsigned long long rdtscp(void)
 {
   unsigned long long lo, hi;

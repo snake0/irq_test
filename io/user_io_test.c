@@ -12,7 +12,7 @@
 #include "../utils.h"
 
 int bind_cpu = 0, cpu_id = 0, file_num = 0;
-#define BLOCK_SIZE (1 << 16)
+#define BLOCK_SIZE (1 << 8)
 cpu_set_t mask;
 char *filename;
 
@@ -84,6 +84,7 @@ int main(int argc, char **argv)
     {
       printf("Create thread error!\n");
     }
+    pthread_join(pid, NULL);
   }
   else
   {
