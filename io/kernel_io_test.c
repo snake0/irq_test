@@ -16,8 +16,8 @@ MODULE_VERSION("0.01");
 static struct task_struct *tss = NULL;
 
 #define FILE_NAME "/home/snake0/test.0"
-#define FILE_SIZE (1 << 8)
-#define OPER_COUNT 1000
+#define FILE_SIZE (1 << 12)
+#define OPER_COUNT 10000
 
 
 int test_io(void *arg)

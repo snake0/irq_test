@@ -11,8 +11,8 @@
 #include <sched.h>
 #include "../utils.h"
 
-#define BLOCK_SIZE (1 << 8)
-#define OPER_COUNT 1000
+#define BLOCK_SIZE (1 << 12)
+#define OPER_COUNT 10000
 
 cpu_set_t mask;
 char *filename = "/home/snake0/test.0";
@@ -39,7 +39,7 @@ int test_io()
   if ((fd = open(filename, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR)) == -1)
   {
     printf("File prepare error! exit.\n");
-    return;
+    return 0;
   }
 
   ret = write(fd, write_buf, BLOCK_SIZE);
@@ -52,7 +52,7 @@ int test_io()
     if ((fd = open(filename, O_RDONLY)) == -1)
     {
       printf("File open error! exit.\n");
-      return;
+      return 0;
     }
     begin = rdtscp();
     for (int j = 0; j < OPER_COUNT; ++j)
@@ -70,7 +70,7 @@ int test_io()
     if ((fd = open(filename, O_WRONLY | O_TRUNC, S_IRWXG)) == -1)
     {
       printf("File open error! exit.\n");
-      return;
+      return 0;
     }
 
     begin = rdtscp();
@@ -84,6 +84,7 @@ int test_io()
     close(fd);
   }
   unlink("test.0");
+  return 0;
 }
 
 int main(int argc, char **argv)
