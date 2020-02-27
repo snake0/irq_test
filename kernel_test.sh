@@ -8,7 +8,7 @@ if [ $? -ne 0 ]; then
   exit
 else
   echo "\nwaiting..."
-  sleep 10
+  sleep 3
   echo "started!"
   sudo insmod kernel_$1_test.ko
   cd ..

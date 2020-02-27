@@ -11,10 +11,11 @@
 #include <sched.h>
 #include "../utils.h"
 
-int bind_cpu = 0, cpu_id = 0, file_num = 0;
 #define BLOCK_SIZE (1 << 8)
+#define OPER_COUNT 1000
+
 cpu_set_t mask;
-char *filename;
+char *filename = "/home/snake0/test.0";
 
 void test_io()
 {
@@ -26,7 +27,7 @@ void test_io()
   off_t pos;
   memset(write_buf, 'c', BLOCK_SIZE);
 
-  if (bind_cpu)
+  if (BIND_CPU)
   {
     if (pthread_setaffinity_np(pthread_self(), sizeof(mask), &mask) < 0)
     {
@@ -34,18 +35,30 @@ void test_io()
     }
   }
 
+  // init file for read
+  if ((fd = open(filename, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR)) == -1)
+  {
+    printf("File prepare error! exit.\n");
+    return;
+  }
+
+  ret = write(fd, write_buf, BLOCK_SIZE);
+  ret = write(fd, write_buf, BLOCK_SIZE);
+  close(fd);
+
   // test read
   for (int i = 0; i < 10; ++i)
   {
     if ((fd = open(filename, O_RDONLY | O_SYNC)) == -1)
     {
-      printf("File open error!\n");
+      printf("File open error! exit.\n");
+      return;
     }
     begin = rdtscp();
-    for (int j = 0; j < 100; ++j)
+    for (int j = 0; j < OPER_COUNT; ++j)
       ret = pread(fd, read_buf, BLOCK_SIZE, 0);
     end = rdtscp();
-    printf("[READ BIND=%d] %lu\n", bind_cpu, end - begin);
+    printf("[READ BIND=%d] %lu\n", BIND_CPU, end - begin);
     close(fd);
   }
 
@@ -54,22 +67,24 @@ void test_io()
   for (int i = 0; i < 10; ++i)
   {
     // Open file
-    if ((fd = open("./temp.txt", O_WRONLY | O_TRUNC | O_SYNC, S_IRWXG)) == -1)
+    if ((fd = open(filename, O_WRONLY | O_TRUNC | O_SYNC, S_IRWXG)) == -1)
     {
-      printf("File open error!\n");
+      printf("File open error! exit.\n");
+      return;
     }
 
     begin = rdtscp();
-    for (int j = 0; j < 100; ++j)
+    for (int j = 0; j < OPER_COUNT >> 4; ++j)
     {
       ret = pwrite(fd, write_buf, BLOCK_SIZE, pos);
       pos + BLOCK_SIZE;
     }
     end = rdtscp();
 
-    printf("[WRITE BIND=%d] %lu\n", bind_cpu, end - begin);
+    printf("[WRITE BIND=%d] %lu\n", BIND_CPU, end - begin);
     close(fd);
   }
+  unlink("test.0");
 }
 
 int main(int argc, char **argv)
@@ -78,13 +93,12 @@ int main(int argc, char **argv)
   pthread_t pid;
 
   CPU_ZERO(&mask);
-  bind_cpu = atoi(argv[2]);
-  filename = argv[1];
+  // BIND_CPU = atoi(argv[2]);
+  // filename = argv[1];
 
-  if (bind_cpu)
+  if (BIND_CPU)
   {
-    cpu_id = atoi(argv[3]);
-    CPU_SET(cpu_id, &mask);
+    CPU_SET(CPUID, &mask);
     if ((ret = pthread_create(&pid, NULL, (void *)test_io, NULL)) != 0)
     {
       printf("Create thread error!\n");
