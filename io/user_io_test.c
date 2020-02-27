@@ -17,7 +17,7 @@
 cpu_set_t mask;
 char *filename = "/home/snake0/test.0";
 
-void test_io()
+int test_io()
 {
   int ret;
   int fd;
@@ -49,7 +49,7 @@ void test_io()
   // test read
   for (int i = 0; i < 10; ++i)
   {
-    if ((fd = open(filename, O_RDONLY | O_SYNC)) == -1)
+    if ((fd = open(filename, O_RDONLY)) == -1)
     {
       printf("File open error! exit.\n");
       return;
@@ -67,17 +67,16 @@ void test_io()
   for (int i = 0; i < 10; ++i)
   {
     // Open file
-    if ((fd = open(filename, O_WRONLY | O_TRUNC | O_SYNC, S_IRWXG)) == -1)
+    if ((fd = open(filename, O_WRONLY | O_TRUNC, S_IRWXG)) == -1)
     {
       printf("File open error! exit.\n");
       return;
     }
 
     begin = rdtscp();
-    for (int j = 0; j < OPER_COUNT >> 4; ++j)
+    for (int j = 0; j < OPER_COUNT; ++j)
     {
-      ret = pwrite(fd, write_buf, BLOCK_SIZE, pos);
-      pos + BLOCK_SIZE;
+      ret = pwrite(fd, write_buf, BLOCK_SIZE, 0);
     }
     end = rdtscp();
 
@@ -107,8 +106,8 @@ int main(int argc, char **argv)
   }
   else
   {
-    test_io();
+    ret = test_io();
   }
 
-  return 0;
+  return ret;
 }

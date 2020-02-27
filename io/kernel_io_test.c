@@ -35,14 +35,14 @@ int test_io(void *arg)
   set_fs(KERNEL_DS);
 
   // init file for read
-  if (IS_ERR(fp = filp_open(FILE_NAME, O_WRONLY | O_CREAT | O_TRUNC, 0644)))
+  if (IS_ERR(fp = filp_open(FILE_NAME, O_WRONLY | O_CREAT, 0644)))
   {
     printk("File prepare error! exit.\n");
     return 0;
   }
 
-  ret = vfs_read(fp, read_buf, FILE_SIZE, &pos);
-  ret = vfs_read(fp, read_buf, FILE_SIZE, &pos);
+  ret = vfs_write(fp, write_buf, FILE_SIZE, &pos);
+  ret = vfs_write(fp, write_buf, FILE_SIZE, &pos);
   filp_close(fp, NULL);
 
   // test read
@@ -58,6 +58,7 @@ int test_io(void *arg)
     begin = rdtscp();
     for (j = 0; j < OPER_COUNT; ++j)
     {
+      pos = 0;
       ret = vfs_read(fp, read_buf, FILE_SIZE, &pos);
     }
     end = rdtscp();
@@ -69,7 +70,7 @@ int test_io(void *arg)
   // test sequential write
   for (i = 0; i < 10; ++i)
   {
-    fp = filp_open(FILE_NAME, O_WRONLY | O_TRUNC | O_SYNC, 0644);
+    fp = filp_open(FILE_NAME, O_WRONLY | O_TRUNC, 0644);
     if (IS_ERR(fp))
     {
       printk("Open file error!\n");
@@ -77,10 +78,10 @@ int test_io(void *arg)
     }
 
     begin = rdtscp();
-    for (j = 0; j < OPER_COUNT >> 4; ++j)
+    for (j = 0; j < OPER_COUNT; ++j)
     {
+      pos = 0;
       ret = vfs_write(fp, write_buf, FILE_SIZE, &pos);
-      // pos += FILE_SIZE;
     }
     end = rdtscp();
 
