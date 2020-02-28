@@ -12,6 +12,8 @@
 - L1i cache: 32k
 - L2 cache: 256k
 - L3 cache: 4096k
+- qemu version: 2.11.1
+- gcc version: 7.4.0
 - qemu 启动命令:
 ```bash
 sudo qemu-system-x86_64 -drive file=ubuntu-server.img,if=virtio -cpu host -smp 4 -m 4096 -enable-kvm
