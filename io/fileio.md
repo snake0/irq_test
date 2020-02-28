@@ -98,6 +98,7 @@ sudo qemu-system-x86_64 -drive file=ubuntu-server.img,if=virtio -cpu host -smp 4
 3. `OS` 和 `Hypervisor` 对读的影响大于对写的影响 (对比第四节中 `READ/WRITE` 行的百分比)
 4. Kernel/Hypervisor 对于读写性能的影响小于 OS 对于读写性能的影响 (对比第四节中 `1 & 2` 节 或 `3.1 & 3.2` 节)
 5. 无论是用户态还是内核态，无论是物理机还是虚拟机，绑定 `CPU` 核对 `I/O` 密集型 `APP` 都会降低性能
+6. 关闭中断会使得 `I/O` 操作阻塞
 
 ## 六、代码
 [**测试代码 Github Link**](https://github.com/snake0/irq_test/tree/master/io)
